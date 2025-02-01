@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error Handling in Integration Gateway</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            color: #333;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 Error Handling in Integration Gateway</h1>
+
+    <h2>📌 Introduction</h2>
+    <p>Error handling is a critical aspect of building reliable and stable integration points. In an integration gateway, error handling ensures that failures are properly managed, logged, and possibly retried. This module covers different mechanisms available for handling errors in Apache Camel, a widely used integration framework.</p>
+
+    <h2>📖 Key Concepts & Explanations</h2>
+    <h3>⚠️ Types of Errors</h3>
+    <p>❌ <strong>Unrecoverable Error</strong>: An error that persists regardless of multiple retry attempts. Example: Accessing a non-existent database table, causing a SQL exception.</p>
+    <p>🔄 <strong>Recoverable Error</strong>: A temporary error that may be resolved upon retry. Example: A network issue causing a Java I/O exception.</p>
+
+    <h2>🛠️ Error Handling Strategies in Apache Camel</h2>
+    <p>Apache Camel provides multiple error-handling strategies, including:</p>
+    <ol>
+        <li><strong>Error Handler</strong>: A high-level mechanism that controls behavior when an exception occurs.</li>
+        <li><strong>Exception Policy</strong>: Handles specific exceptions in a defined manner, allowing customization of responses based on exception type.</li>
+        <li><strong>Redelivery Policy</strong>: Defines how many times and at what intervals an exchange should be retried. This can be configured on both error handlers and exception policies.</li>
+        <li><strong>Exception Processor</strong>: A processor that manages exchanges when an exception occurs. It can be configured on error handlers and exception policies.</li>
+    </ol>
+
+    <h2>📌 Step-by-Step Guide to Error Handling in Apache Camel</h2>
+    <ul>
+        <li><strong>🔧 Define an Error Handler</strong>: Choose an appropriate error handler (default, dead-letter, transactional, etc.).</li>
+        <li><strong>📝 Configure Exception Handling Policies</strong>: Define how different types of exceptions should be managed.</li>
+        <li><strong>🔄 Set Up Redelivery Policies</strong>: Configure the retry mechanism to control how and when retries occur.</li>
+        <li><strong>📜 Log Errors</strong>: Ensure logging is set up to capture necessary details for debugging.</li>
+        <li><strong>📦 Use Dead Letter Channels</strong>: If needed, move failed messages to a dedicated queue for further analysis.</li>
+    </ul>
+
+    <h2>🔍 Apache Camel Error Handlers</h2>
+    <table>
+        <tr><th>⚙️ Error Handler Type</th><th>📌 Description</th></tr>
+        <tr><td>🔄 Default Error Handler</td><td>Logs errors but does not handle them by default.</td></tr>
+        <tr><td>🚫 No Error Handler</td><td>No error handling is applied; exceptions propagate back to the caller.</td></tr>
+        <tr><td>📬 Dead Letter Channel</td><td>Moves failed messages to a dedicated queue and retries a set number of times.</td></tr>
+        <tr><td>📜 Logging Error Handler</td><td>Captures and logs errors (deprecated).</td></tr>
+        <tr><td>🔄 Transaction Error Handler</td><td>Used for transactional routes, automatically handles transactional rollback.</td></tr>
+    </table>
+
+    <h2>📊 Diagrams & Illustrations</h2>
+    <pre>
+        Error Handling Flow in Apache Camel:
+        +---------------------+
+        |     Camel Route     |
+        +---------+-----------+
+                  |
+                  v
+         Exception Occurs
+                  |
+   +--------------+-------------+
+   |  Error Handler Evaluates  |
+   +--------------+-------------+
+                  |
+       +----------+-----------+
+       | Retry / Redelivery?  |
+       +----------+-----------+
+           /           \
+   ✅ Yes (Retry)       ❌ No (Dead Letter)
+    </pre>
+
+    <h2>📝 Examples & Case Studies</h2>
+    <h3>📌 Example 1: Handling SQL Exceptions</h3>
+    <p><strong>Scenario:</strong> A JDBC query fails because the database table does not exist.</p>
+    <p><strong>Solution:</strong> Configure an exception policy to catch SQL exceptions and log a descriptive error message.</p>
+    <pre><code>onException(SQLException.class)
+    .handled(true)
+    .log("❌ Database table not found. Please verify the schema.");</code></pre>
+
+    <h3>📌 Example 2: Handling Network Failures</h3>
+    <p><strong>Scenario:</strong> A temporary network failure causes a request to fail.</p>
+    <p><strong>Solution:</strong> Implement a redelivery policy to retry the request a few times before logging it as a failure.</p>
+    <pre><code>onException(IOException.class)
+    .maximumRedeliveries(3)
+    .redeliveryDelay(2000) // 2 seconds delay
+    .log("🌐 Network error. Retrying...");</code></pre>
+
+    <h2>❓ Frequently Asked Questions (FAQs)</h2>
+    <p><strong>🤔 What happens if no error handler is defined?</strong></p>
+    <p>The exception propagates back to the caller, potentially causing the system to fail.</p>
+    <p><strong>🔄 How many times does the Dead Letter Channel retry a failed exchange?</strong></p>
+    <p>By default, it retries six times with a one-second delay between attempts.</p>
+    <p><strong>⚙️ Can we customize redelivery attempts?</strong></p>
+    <p>Yes, using the <code>.maximumRedeliveries(n)</code> method in an exception policy.</p>
+
+    <h2>📌 Key Takeaways & Summary</h2>
+    <p>✅ Error handling is crucial for integration stability.</p>
+    <p>🛠️ Apache Camel provides multiple error-handling strategies.</p>
+    <p>📜 Exception policies allow fine-grained control over error management.</p>
+    <p>📬 The Dead Letter Channel is useful for managing persistent failures.</p>
+    <p>📊 Logging and monitoring errors is essential for debugging.</p>
+
+    <h2>📝 Practice Questions & Exercises</h2>
+    <p><strong>❓ What is the difference between a recoverable and an unrecoverable error?</strong></p>
+    <p><strong>❓ How does the Dead Letter Channel handle exceptions in Camel?</strong></p>
+    <p><strong>✍️ Write a Camel DSL configuration to retry a failing route 5 times before logging an error.</strong></p>
+
+    <h2>📚 Further Reading & References</h2>
+    <p><a href="https://camel.apache.org/manual/latest/error-handling.html">📖 Apache Camel Documentation</a></p>
+    <p><a href="https://www.oracle.com/java/technologies/javase/exception-handling.html">📘 Java Exception Handling Best Practices</a></p>
+    <p><a href="https://www.enterpriseintegrationpatterns.com">📗 Integration Patterns & Best Practices</a></p>
+</body>
+</html>
